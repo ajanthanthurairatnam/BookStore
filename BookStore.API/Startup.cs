@@ -1,3 +1,4 @@
+using BookStore.API.Cache;
 using BookStore.Core;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -27,6 +28,16 @@ namespace BookStore.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var redisCacheSettings = new RedisCacheSettings();
+            Configuration.GetSection(nameof(RedisCacheSettings)).Bind(redisCacheSettings);
+            services.AddSingleton(redisCacheSettings);
+            
+            if (redisCacheSettings.Enabled)
+            {
+                services.AddStackExchangeRedisCache(opt => opt.Configuration = redisCacheSettings.ConnectionString);
+                services.AddSingleton<IResponseCacheService, ResponseCacheService>();
+            }
+
             services.AddSingleton<IDbClient, DbClient>();
             services.Configure<BookstoreDbConfig>(Configuration);
             services.AddTransient<IBookServices, BookServices>();

@@ -13,13 +13,13 @@ namespace BookStore.API.Controllers
     public class BooksController : ControllerBase
     {
         private readonly IBookServices bookServices;
-
-
         public BooksController(IBookServices bookServices)
         {
             this.bookServices = bookServices;
         }
+
         [HttpGet]
+        [Cached(600)]
         public IActionResult GetBooks()
         {
             return Ok(bookServices.GetBooks());
